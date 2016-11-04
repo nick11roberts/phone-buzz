@@ -23,7 +23,10 @@ def twimlPhonebuzz():
         resp.message(fizzbuzz)
         return str(resp)
 
-    else if request.method == 'GET':
+    elif request.method == 'GET':
         resp = twiml.Response()
         resp.message("Please enter a number")
         return str(resp)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
