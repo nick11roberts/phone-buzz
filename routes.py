@@ -19,10 +19,9 @@ def twimlPhonebuzz():
         post_variables = request.form.to_dict()
     sig = request.headers["X-Twilio-Signature"]
 
-    print(validator.validate(url, post_variables, sig))
-
-    #if not validator.validate(url, post_variables, sig):
-    #    return "Invalid request"
+    if not validator.validate(url, post_variables, sig) \
+        and request.method == 'POST':
+        return "Invalid request"
 
     if request.method == 'POST':
         n = int(request.values.get('Digits', None))
