@@ -2,6 +2,8 @@ from flask import Flask, request, render_template
 from twilio import twiml
 from twilio.util import RequestValidator
 from twilio.rest import TwilioRestClient
+from time import sleep
+from threading import Thread
 
 app = Flask(__name__)
 
@@ -49,18 +51,30 @@ def twimlPhonebuzz():
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'POST':
-        ACCOUNT_SID = "ACe3f2f5b18e73ba630eb75876eeecd76c"
-        AUTH_TOKEN = "4330182d28ec0d81a0f677ebaa5e3f3b"
-        client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
-        call = client.calls.create(
-            to=request.values.get('phone-number', None),
-            from_="+15594008715",
-            url="http://172.99.78.236/phaseOne/",
-            method="get",
-        )
-        return "sent"
+
+        scheduleThread = Thread(target=scheduleCall,
+            args=[request.values.get('phone-number', None),
+            int(request.values.get('delay', None)) * 60])
+
+        scheduleThread.start()
+
+        return "Call scheduled"
     elif request.method == 'GET':
         return render_template('index.html')
+
+def scheduleCall(phoneNumber, delay):
+    ACCOUNT_SID = "ACe3f2f5b18e73ba630eb75876eeecd76c"
+    AUTH_TOKEN = "4330182d28ec0d81a0f677ebaa5e3f3b"
+
+    # Delay for some amount of time
+    sleep(delay)
+    client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN)
+    call = client.calls.create(
+        to=phoneNumber,
+        from_="+15594008715",
+        url="http://172.99.78.236/phaseOne/",
+        method="get",
+    )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
